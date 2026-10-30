@@ -1,7 +1,7 @@
 # CSE3141 – Predictive Analytics: Course Project
 **Manipal University Jaipur | Department of Computer Science & Engineering**
 
-[![Live Demo on Vercel](https://img.shields.io/badge/Live_Dashboard-Vercel-black?style=for-the-badge&logo=vercel)](https://predictive-analytics-bike-sharing.vercel.app)
+[![Live Demo on Web](https://img.shields.io/badge/Live_Dashboard-GitHub_Pages-2ea44f?style=for-the-badge&logo=github)](https://a-k-s-h-a-t-2-0.github.io/predictive-analytics-bike-sharing/)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge&logo=github)](https://github.com/A-k-s-h-a-t-2-0/predictive-analytics-bike-sharing)
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FA-k-s-h-a-t-2-0%2Fpredictive-analytics-bike-sharing)
 
@@ -12,14 +12,16 @@
 
 ### 🔗 Live Interactive Dashboard
 Try the live model demo with real-time demand calculation and visual analytics:
-👉 **[https://predictive-analytics-bike-sharing.vercel.app](https://predictive-analytics-bike-sharing.vercel.app)**
+👉 **[https://a-k-s-h-a-t-2-0.github.io/predictive-analytics-bike-sharing/](https://a-k-s-h-a-t-2-0.github.io/predictive-analytics-bike-sharing/)**
+
+*(Or deploy to your own Vercel account in 1-click using the button above!)*
 
 ---
 
 ## 📁 Repository Structure
 ```
 predictive analysis project/
-├── index.html              # Interactive Web Dashboard (Hosted on Vercel)
+├── index.html              # Interactive Web Dashboard (Hosted live)
 ├── vercel.json             # Vercel deployment configuration
 ├── data/
 │   ├── hour.csv            # Hourly Capital Bikeshare records (17,379 rows, 17 columns)
