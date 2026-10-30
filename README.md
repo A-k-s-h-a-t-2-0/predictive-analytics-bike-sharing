@@ -1,14 +1,26 @@
 # CSE3141 – Predictive Analytics: Course Project
 **Manipal University Jaipur | Department of Computer Science & Engineering**
 
-## Project Title
+[![Live Demo on Vercel](https://img.shields.io/badge/Live_Dashboard-Vercel-black?style=for-the-badge&logo=vercel)](https://predictive-analytics-bike-sharing.vercel.app)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge&logo=github)](https://github.com/A-k-s-h-a-t-2-0/predictive-analytics-bike-sharing)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FA-k-s-h-a-t-2-0%2Fpredictive-analytics-bike-sharing)
+
+---
+
+## 🌟 Project Title
 **Predictive Demand Modeling for Urban Bike Sharing using Generalized Linear Models (Poisson & Negative Binomial Regression)**
+
+### 🔗 Live Interactive Dashboard
+Try the live model demo with real-time demand calculation and visual analytics:
+👉 **[https://predictive-analytics-bike-sharing.vercel.app](https://predictive-analytics-bike-sharing.vercel.app)**
 
 ---
 
 ## 📁 Repository Structure
 ```
 predictive analysis project/
+├── index.html              # Interactive Web Dashboard (Hosted on Vercel)
+├── vercel.json             # Vercel deployment configuration
 ├── data/
 │   ├── hour.csv            # Hourly Capital Bikeshare records (17,379 rows, 17 columns)
 │   ├── day.csv             # Daily aggregated records
@@ -29,27 +41,6 @@ predictive analysis project/
 
 ---
 
-## 🚀 How to Run the Project
-
-### Option A: Using Jupyter Notebook (Recommended for submission)
-1. Open the workspace in VS Code or launch Jupyter:
-   ```bash
-   jupyter lab
-   # or
-   jupyter notebook
-   ```
-2. Open `predictive_analytics_bike_sharing.ipynb`.
-3. All cells are already pre-executed with plots and tables rendered. You can also re-run the notebook anytime with `Kernel -> Restart & Run All`.
-
-### Option B: Using the Command Line
-Run the standalone analysis script:
-```bash
-python run_analysis.py
-```
-This will print the descriptive statistics, overdispersion test, model comparisons, and save all 7 publication-ready charts to the `figures/` directory.
-
----
-
 ## 📊 Summary of Lecture Topics Covered
 
 | Lecture Number | Syllabus Requirement | Implementation in this Project |
@@ -62,3 +53,29 @@ This will print the descriptive statistics, overdispersion test, model compariso
 | **Lec 10–11** | Feature Engineering & Selection | Rush hour flag, cyclical hour encoding ($\sin, \cos$), one-hot dummy variables. |
 | **Lec 19–21** | Generalized Linear Regression | OLS Baseline vs. Poisson Regression ($e^{X\beta}$) vs. Negative Binomial. |
 | **Lec 30–36** | Validation, Metrics & Tuning | 80/20 train/test split, RMSE, MAE, and 5-Fold `GridSearchCV` parameter tuning. |
+
+---
+
+## 🏆 Model Benchmark Results
+
+| Model | Test RMSE (Lec 31) | Test MAE (Lec 32) | $R^2$ Score | Negative Predictions ($< 0$) | Status |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **1. Linear Regression (OLS)** | 92.767 | 69.937 | 0.728 | **324 (Invalid)** | Violates Non-negativity |
+| **2. Poisson Regression (Lec 20)** | 88.698 | 63.065 | 0.752 | **0 (Valid)** | Strictly Non-negative |
+| **3. Negative Binomial (Lec 21)** | 152.036 | 88.076 | 0.270 | **0 (Valid)** | Models Overdispersion |
+| **4. Tuned Poisson (GridSearchCV)** | **87.836** | **62.302** | **0.758** | **0 (Valid)** | **Top Performer** |
+
+---
+
+## 🚀 How to Run Locally
+
+### Option A: Using Jupyter Notebook (Submission Ready)
+1. Open `predictive_analytics_bike_sharing.ipynb` in VS Code or JupyterLab.
+2. All cells are already pre-run with outputs, graphs, and summary tables intact.
+
+### Option B: Using the Command Line
+Run the standalone analysis script:
+```bash
+python run_analysis.py
+```
+This generates all figures and prints the complete statistical summary to your terminal.

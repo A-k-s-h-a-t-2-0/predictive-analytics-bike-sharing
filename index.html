@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bike Sharing Demand Predictor | CSE3141 Predictive Analytics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- TOP BANNER -->
+  <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-sky-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+          <i class="fa-solid fa-bicycle text-lg"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-base text-white tracking-tight">Bike Sharing Demand Analytics</h1>
+          <p class="text-xs text-slate-400">CSE3141 · Manipal University Jaipur</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="https://github.com/A-k-s-h-a-t-2-0/predictive-analytics-bike-sharing" target="_blank" class="inline-flex items-center space-x-2 text-xs font-semibold px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+          <i class="fa-brands fa-github text-sm"></i>
+          <span>GitHub Repo</span>
+        </a>
+        <a href="#predictor" class="inline-flex items-center space-x-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30 transition">
+          <i class="fa-solid fa-calculator"></i>
+          <span>Live Predictor</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="relative overflow-hidden py-14 border-b border-slate-800/80 bg-gradient-to-b from-slate-900/40 via-slate-950 to-slate-950">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-medium bg-indigo-950/80 text-indigo-300 border border-indigo-800/60 mb-5">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Course Handout Verified · Lectures 5–36 Aligned</span>
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
+        Predictive Demand Modeling with <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">Generalized Linear Models</span>
+      </h2>
+      <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mt-4 leading-relaxed">
+        Poisson & Negative Binomial Regression pipeline for hourly urban bike-sharing demand. Accurately modeling overdispersion and eliminating impossible negative demand predictions.
+      </p>
+
+      <!-- METRIC CARDS -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-10">
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm text-left">
+          <div class="text-slate-400 text-xs font-medium">Dataset Records</div>
+          <div class="text-2xl font-bold text-white mt-1 mono">17,379</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Capital Bikeshare / UCI</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm text-left">
+          <div class="text-slate-400 text-xs font-medium">Dispersion Ratio</div>
+          <div class="text-2xl font-bold text-amber-400 mt-1 mono">173.66x</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Var ≫ Mean (Overdispersed)</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm text-left">
+          <div class="text-slate-400 text-xs font-medium">OLS Negative Counts</div>
+          <div class="text-2xl font-bold text-rose-400 mt-1 mono">324</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Linear Regression Flaw</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm text-left">
+          <div class="text-slate-400 text-xs font-medium">Tuned Poisson RMSE</div>
+          <div class="text-2xl font-bold text-emerald-400 mt-1 mono">87.84</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">GridSearchCV Optimized</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN DASHBOARD -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+
+    <!-- INTERACTIVE PREDICTOR WIDGET -->
+    <section id="predictor" class="rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-slate-900/90 via-slate-900/60 to-indigo-950/40 p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+      <div class="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-slate-800 gap-4">
+        <div>
+          <span class="text-xs uppercase tracking-wider font-semibold text-indigo-400">Interactive Model Inference</span>
+          <h3 class="text-2xl font-bold text-white mt-1">Real-Time Hourly Demand Calculator</h3>
+          <p class="text-xs text-slate-400 mt-1">Computes $\hat{y} = \exp(X\beta)$ using trained Poisson parameters with zero negative predictions.</p>
+        </div>
+        <div class="flex items-center space-x-2 bg-slate-950/80 px-4 py-2.5 rounded-2xl border border-slate-800">
+          <span class="text-xs text-slate-400">Predicted Demand:</span>
+          <span id="output-cnt" class="text-3xl font-extrabold text-indigo-400 mono animate-pulse">184</span>
+          <span class="text-xs text-slate-400">bikes/hr</span>
+        </div>
+      </div>
+
+      <!-- CONTROLS GRID -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+        <!-- Col 1: Time & Commute -->
+        <div class="space-y-4">
+          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400">1. Time & Commuting</h4>
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Hour of Day:</span>
+              <span id="label-hr" class="font-bold text-indigo-300 mono">17:00 (5 PM)</span>
+            </div>
+            <input id="input-hr" type="range" min="0" max="23" value="17" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Day Type:</span>
+              <span id="label-workday" class="font-bold text-indigo-300">Working Day</span>
+            </div>
+            <select id="input-workday" class="w-full text-xs bg-slate-950 border border-slate-800 text-slate-200 rounded-lg px-3 py-2 focus:ring-1 focus:ring-indigo-500 outline-none">
+              <option value="1" selected>Working Day (Commuter traffic)</option>
+              <option value="0">Weekend / Non-working day</option>
+            </select>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Year:</span>
+              <span class="font-bold text-indigo-300">2012 (Year 1)</span>
+            </div>
+            <select id="input-yr" class="w-full text-xs bg-slate-950 border border-slate-800 text-slate-200 rounded-lg px-3 py-2 focus:ring-1 focus:ring-indigo-500 outline-none">
+              <option value="1" selected>Year 2012 (Matured system)</option>
+              <option value="0">Year 2011 (Launch year)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Col 2: Environment -->
+        <div class="space-y-4">
+          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400">2. Weather Conditions</h4>
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Temperature:</span>
+              <span id="label-temp" class="font-bold text-indigo-300 mono">25°C (Norm: 0.60)</span>
+            </div>
+            <input id="input-temp" type="range" min="0.1" max="0.9" step="0.05" value="0.6" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Relative Humidity:</span>
+              <span id="label-hum" class="font-bold text-indigo-300 mono">50%</span>
+            </div>
+            <input id="input-hum" type="range" min="0.1" max="1.0" step="0.05" value="0.5" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Wind Speed:</span>
+              <span id="label-wind" class="font-bold text-indigo-300 mono">Moderate (0.2)</span>
+            </div>
+            <input id="input-wind" type="range" min="0.0" max="0.6" step="0.05" value="0.2" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+          </div>
+        </div>
+
+        <!-- Col 3: Season & Weather State -->
+        <div class="space-y-4">
+          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400">3. Season & Atmosphere</h4>
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Season:</span>
+            </div>
+            <select id="input-season" class="w-full text-xs bg-slate-950 border border-slate-800 text-slate-200 rounded-lg px-3 py-2 focus:ring-1 focus:ring-indigo-500 outline-none">
+              <option value="1">Spring</option>
+              <option value="2">Summer</option>
+              <option value="3" selected>Fall (Peak Demand)</option>
+              <option value="4">Winter</option>
+            </select>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Weather Situation:</span>
+            </div>
+            <select id="input-weather" class="w-full text-xs bg-slate-950 border border-slate-800 text-slate-200 rounded-lg px-3 py-2 focus:ring-1 focus:ring-indigo-500 outline-none">
+              <option value="1" selected>Clear / Few Clouds</option>
+              <option value="2">Mist / Cloudy</option>
+              <option value="3">Light Snow / Light Rain</option>
+              <option value="4">Heavy Rain / Ice Pellets</option>
+            </select>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 text-[11px] text-slate-400 space-y-1">
+            <div class="flex justify-between"><span class="text-slate-500">Rush Hour Active:</span> <span id="label-rush" class="font-semibold text-emerald-400">Yes (Commuter Peak)</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Mathematical Guarantee:</span> <span class="text-slate-300">Non-negative ($Y \ge 0$)</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BENCHMARK TABLE -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <span class="text-xs uppercase tracking-wider font-semibold text-indigo-400">Lectures 30–36</span>
+          <h3 class="text-xl font-bold text-white">Model Comparison & Validation Benchmark</h3>
+        </div>
+        <span class="text-xs text-slate-400">Evaluated on 3,476 Hold-out Test Samples (80/20 Split)</span>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/40">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-900 text-slate-400 uppercase text-[11px] font-semibold border-b border-slate-800">
+            <tr>
+              <th class="py-3 px-4">Predictive Model</th>
+              <th class="py-3 px-4">Test RMSE (Lec 31)</th>
+              <th class="py-3 px-4">Test MAE (Lec 32)</th>
+              <th class="py-3 px-4">$R^2$ Score</th>
+              <th class="py-3 px-4">Negative Predictions</th>
+              <th class="py-3 px-4">Status / Evaluation</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/80">
+            <tr class="hover:bg-slate-800/20 transition">
+              <td class="py-3.5 px-4 font-semibold text-white">1. Linear Regression (OLS Baseline)</td>
+              <td class="py-3.5 px-4 mono text-slate-200">92.767</td>
+              <td class="py-3.5 px-4 mono text-slate-200">69.937</td>
+              <td class="py-3.5 px-4 mono text-slate-200">0.728</td>
+              <td class="py-3.5 px-4 mono text-rose-400 font-bold">324 Invalid</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 text-[10px] rounded-full bg-rose-950 text-rose-300 border border-rose-800">Violates Non-negativity</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/20 transition">
+              <td class="py-3.5 px-4 font-semibold text-white">2. Poisson Regression (Lecture 20)</td>
+              <td class="py-3.5 px-4 mono text-slate-200">88.698</td>
+              <td class="py-3.5 px-4 mono text-slate-200">63.065</td>
+              <td class="py-3.5 px-4 mono text-slate-200">0.752</td>
+              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">0 (Valid)</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 text-[10px] rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">Log-Link Enforced</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/20 transition">
+              <td class="py-3.5 px-4 font-semibold text-white">3. Negative Binomial Regression (Lecture 21)</td>
+              <td class="py-3.5 px-4 mono text-slate-200">152.036</td>
+              <td class="py-3.5 px-4 mono text-slate-200">88.076</td>
+              <td class="py-3.5 px-4 mono text-slate-200">0.270</td>
+              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">0 (Valid)</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 text-[10px] rounded-full bg-amber-950 text-amber-300 border border-amber-800">Overdispersion ($\alpha=0.5$)</span></td>
+            </tr>
+            <tr class="bg-indigo-950/20 hover:bg-indigo-950/30 transition">
+              <td class="py-3.5 px-4 font-bold text-indigo-300 flex items-center space-x-1.5">
+                <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                <span>4. Tuned Poisson (GridSearchCV α=5.0)</span>
+              </td>
+              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">87.836</td>
+              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">62.302</td>
+              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">0.758</td>
+              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">0 (Valid)</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 text-[10px] rounded-full bg-indigo-900 text-indigo-200 border border-indigo-700 font-semibold">Best Model</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- VISUAL GALLERY (LECTURES 6, 9, 36) -->
+    <section class="space-y-6">
+      <div>
+        <span class="text-xs uppercase tracking-wider font-semibold text-indigo-400">Lectures 6 & 9</span>
+        <h3 class="text-xl font-bold text-white">Course Syllabus Visualizations Gallery</h3>
+        <p class="text-xs text-slate-400 mt-1">Generated directly by the Python analytical pipeline with Matplotlib and Seaborn.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Plot 1 -->
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-200">Outlier Boxplots (Lec 6)</span>
+            <span class="text-slate-500">IQR = 241</span>
+          </div>
+          <img src="figures/01_boxplot_outliers_lec6.png" alt="Boxplot" class="rounded-xl border border-slate-800 w-full object-cover">
+          <p class="text-[11px] text-slate-400">Box plots detecting 505 rush-hour upper outliers exceeding the $1.5 \times \text{IQR}$ threshold ($642.5$).</p>
+        </div>
+
+        <!-- Plot 2 -->
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-200">Distribution Histogram (Lec 9)</span>
+            <span class="text-slate-500">Skewed Count</span>
+          </div>
+          <img src="figures/02_histogram_lec9.png" alt="Histogram" class="rounded-xl border border-slate-800 w-full object-cover">
+          <p class="text-[11px] text-slate-400">Positively skewed distribution proving why count regression is required instead of Gaussian assumptions.</p>
+        </div>
+
+        <!-- Plot 3 -->
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-200">Scatter Plot (Lec 9)</span>
+            <span class="text-slate-500">Temp vs Count</span>
+          </div>
+          <img src="figures/03_scatter_plot_lec9.png" alt="Scatter" class="rounded-xl border border-slate-800 w-full object-cover">
+          <p class="text-[11px] text-slate-400">Non-linear relationship between temperature and rental demand highlighting ideal weather sweet-spots.</p>
+        </div>
+
+        <!-- Plot 4 -->
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-200">Seasonal Bar Chart (Lec 9)</span>
+            <span class="text-slate-500">Category Means</span>
+          </div>
+          <img src="figures/04_bar_chart_lec9.png" alt="Bar Chart" class="rounded-xl border border-slate-800 w-full object-cover">
+          <p class="text-[11px] text-slate-400">Average rental volume across Spring, Summer, Fall, and Winter illustrating strong seasonal variation.</p>
+        </div>
+
+        <!-- Plot 5 -->
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-200">Weather Pie Chart (Lec 9)</span>
+            <span class="text-slate-500">Proportions</span>
+          </div>
+          <img src="figures/05_pie_chart_lec9.png" alt="Pie Chart" class="rounded-xl border border-slate-800 w-full object-cover">
+          <p class="text-[11px] text-slate-400">Percentage distribution of weather conditions (65.8% Clear/Few Clouds, 26.1% Mist, 8.1% Precip).</p>
+        </div>
+
+        <!-- Plot 6 -->
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-200">Correlation Heatmap (Lec 9)</span>
+            <span class="text-slate-500">Collinearity</span>
+          </div>
+          <img src="figures/06_heatmap_lec9.png" alt="Heatmap" class="rounded-xl border border-slate-800 w-full object-cover">
+          <p class="text-[11px] text-slate-400">Correlation matrix identifying temperature as a strong positive driver and humidity as a negative driver.</p>
+        </div>
+      </div>
+
+      <!-- Plot 7: Full Width Actual vs Predicted -->
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 space-y-3">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-bold text-slate-200">Actual vs. Predicted Over Time (Lectures 30–36)</span>
+          <span class="text-emerald-400 font-semibold">Tuned Poisson vs OLS Flaw</span>
+        </div>
+        <img src="figures/07_actual_vs_predicted.png" alt="Actual vs Predicted" class="rounded-xl border border-slate-800 w-full object-cover max-h-96">
+        <p class="text-[11px] text-slate-400">Time-series overlay displaying the 120-hour test window. OLS drops below 0 during late night hours, whereas Poisson smoothly hugs zero without negative values.</p>
+      </div>
+    </section>
+
+    <!-- VIVA DEFENSE GUIDE -->
+    <section class="rounded-3xl border border-slate-800 bg-slate-900/30 p-6 sm:p-10 space-y-6">
+      <div>
+        <span class="text-xs uppercase tracking-wider font-semibold text-indigo-400">Viva Preparation</span>
+        <h3 class="text-xl font-bold text-white">Course Viva Voce Q&A Cheat Sheet</h3>
+        <p class="text-xs text-slate-400 mt-1">High-probability questions expected during project viva.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-300">
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+          <h4 class="font-bold text-white">Q1: Why not standard Linear Regression?</h4>
+          <p class="text-slate-400 leading-relaxed">
+            Linear Regression assumes homoscedastic Gaussian errors and unconstrained values $(-\infty, +\infty)$. For count data, rentals cannot be negative. In our holdout set, OLS predicted negative counts 324 times. Poisson's log link $\exp(X\beta)$ naturally bounds predictions to $[0, +\infty)$.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+          <h4 class="font-bold text-white">Q2: How did you prove Overdispersion?</h4>
+          <p class="text-slate-400 leading-relaxed">
+            In standard Poisson, $\mathbb{E}[Y] = \text{Var}(Y) = \mu$. In our target data, $\text{Mean} = 189.46$ while $\text{Variance} = 32,901.46$. The dispersion ratio $\text{Var}/\text{Mean} = 173.66 \gg 1$, mathematically proving overdispersion and motivating Negative Binomial Regression (Lec 21).
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+          <h4 class="font-bold text-white">Q3: How was Outlier Detection done (Lec 6)?</h4>
+          <p class="text-slate-400 leading-relaxed">
+            Using the $1.5 \times \text{IQR}$ rule: $Q_1 = 40$, $Q_3 = 281$, $\text{IQR} = 241$. Threshold was $642.5$. We identified 505 counts above this threshold (2.91%), which correspond to extreme commuter rushes rather than corrupted sensor inputs.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+          <h4 class="font-bold text-white">Q4: What feature transformations were applied?</h4>
+          <p class="text-slate-400 leading-relaxed">
+            1) Engineered a binary `rush_hour` indicator for 7–9 AM and 5–7 PM on working days. 2) Encoded 24 hours into cyclical continuous signals using $\sin(2\pi \cdot \text{hr}/24)$ and $\cos(2\pi \cdot \text{hr}/24)$. 3) One-hot dummy encoding for weather and seasons.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800/80 bg-slate-950 py-8 text-center text-xs text-slate-500">
+    <p>CSE3141 Predictive Analytics Mini Project · Department of Computer Science & Engineering · Manipal University Jaipur</p>
+    <p class="mt-2 text-slate-600">Built with Python, Scikit-Learn, Statsmodels, Tailwind CSS · Deployed on Vercel</p>
+  </footer>
+
+  <!-- REAL-TIME PREDICTOR SCRIPT -->
+  <script>
+    // Trained Poisson Model Weights & Scaler Parameters
+    const intercept = 4.9077;
+    const weights = {
+      yr: { coef: 0.2288, mean: 0.5026, scale: 0.5000 },
+      holiday: { coef: -0.0258, mean: 0.0288, scale: 0.1672 },
+      workingday: { coef: -0.1654, mean: 0.6827, scale: 0.4654 },
+      rush_hour: { coef: 0.3868, mean: 0.1716, scale: 0.3771 },
+      temp: { coef: 0.2129, mean: 0.4970, scale: 0.1926 },
+      hum: { coef: -0.0178, mean: 0.6272, scale: 0.1929 },
+      windspeed: { coef: -0.0196, mean: 0.1901, scale: 0.1223 },
+      sin_hr: { coef: -0.3312, mean: -0.0045, scale: 0.7068 },
+      cos_hr: { coef: -0.4127, mean: -0.0033, scale: 0.7074 },
+      season_2: { coef: 0.1375, mean: 0.2537, scale: 0.4351 },
+      season_3: { coef: 0.1107, mean: 0.2587, scale: 0.4379 },
+      season_4: { coef: 0.1818, mean: 0.2435, scale: 0.4292 },
+      weathersit_2: { coef: -0.0288, mean: 0.2615, scale: 0.4394 },
+      weathersit_3: { coef: -0.1328, mean: 0.0817, scale: 0.2738 },
+      weathersit_4: { coef: -0.0094, mean: 0.0002, scale: 0.0131 }
+    };
+
+    function updatePrediction() {
+      const hr = parseInt(document.getElementById('input-hr').value);
+      const workday = parseInt(document.getElementById('input-workday').value);
+      const yr = parseInt(document.getElementById('input-yr').value);
+      const temp = parseFloat(document.getElementById('input-temp').value);
+      const hum = parseFloat(document.getElementById('input-hum').value);
+      const wind = parseFloat(document.getElementById('input-wind').value);
+      const season = parseInt(document.getElementById('input-season').value);
+      const weather = parseInt(document.getElementById('input-weather').value);
+
+      // Label updates
+      const hourStr = hr < 10 ? `0${hr}:00` : `${hr}:00`;
+      document.getElementById('label-hr').textContent = `${hourStr}`;
+      const tempC = Math.round(temp * 41);
+      document.getElementById('label-temp').textContent = `${tempC}°C (Norm: ${temp.toFixed(2)})`;
+      document.getElementById('label-hum').textContent = `${Math.round(hum * 100)}%`;
+      document.getElementById('label-wind').textContent = `${wind.toFixed(2)}`;
+
+      // Derived features
+      const isRushHour = (((hr >= 7 && hr <= 9) || (hr >= 17 && hr <= 19)) && workday === 1) ? 1 : 0;
+      document.getElementById('label-rush').textContent = isRushHour ? 'Yes (Commuter Peak)' : 'No (Off-peak)';
+      document.getElementById('label-rush').className = isRushHour ? 'font-semibold text-emerald-400' : 'font-semibold text-slate-400';
+
+      const sin_hr = Math.sin(2 * Math.PI * hr / 24);
+      const cos_hr = Math.cos(2 * Math.PI * hr / 24);
+
+      const rawInputs = {
+        yr: yr,
+        holiday: 0,
+        workingday: workday,
+        rush_hour: isRushHour,
+        temp: temp,
+        hum: hum,
+        windspeed: wind,
+        sin_hr: sin_hr,
+        cos_hr: cos_hr,
+        season_2: season === 2 ? 1 : 0,
+        season_3: season === 3 ? 1 : 0,
+        season_4: season === 4 ? 1 : 0,
+        weathersit_2: weather === 2 ? 1 : 0,
+        weathersit_3: weather === 3 ? 1 : 0,
+        weathersit_4: weather === 4 ? 1 : 0
+      };
+
+      // Compute linear predictor: eta = intercept + sum(coef * (x - mean)/scale)
+      let eta = intercept;
+      for (const [key, param] of Object.entries(weights)) {
+        const val = rawInputs[key] || 0;
+        const scaledVal = (val - param.mean) / param.scale;
+        eta += param.coef * scaledVal;
+      }
+
+      // Link function: mu = exp(eta)
+      let pred = Math.round(Math.exp(eta));
+      if (isNaN(pred) || pred < 0) pred = 0;
+
+      document.getElementById('output-cnt').textContent = pred;
+    }
+
+    // Attach listeners
+    ['input-hr', 'input-workday', 'input-yr', 'input-temp', 'input-hum', 'input-wind', 'input-season', 'input-weather'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updatePrediction);
+      document.getElementById(id).addEventListener('change', updatePrediction);
+    });
+
+    updatePrediction();
+  </script>
+</body>
+</html>
