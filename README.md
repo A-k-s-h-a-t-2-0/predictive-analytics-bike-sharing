@@ -62,9 +62,8 @@ predictive analysis project/
 | Model | Test RMSE | Test MAE | $R^2$ Score | Negative Predictions ($< 0$) | Status |
 | :--- | :---: | :---: | :---: | :---: | :--- |
 | **1. Linear Regression (OLS)** | 92.767 | 69.937 | 0.728 | **324 (Invalid)** | Violates Non-negativity |
-| **2. Poisson Regression** | 88.698 | 63.065 | 0.752 | **0 (Valid)** | Strictly Non-negative |
+| **2. Poisson Regression** | **88.698** | **63.065** | **0.752** | **0 (Valid)** | **Top Performer (Strictly Non-negative)** |
 | **3. Negative Binomial** | 152.036 | 88.076 | 0.270 | **0 (Valid)** | Models Overdispersion |
-| **4. Tuned Poisson (GridSearchCV)** | **87.836** | **62.302** | **0.758** | **0 (Valid)** | **Top Performer** |
 
 ---
 

@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 
-from sklearn.model_selection import train_test_split, KFold, cross_val_score, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression, PoissonRegressor, Ridge
+from sklearn.linear_model import LinearRegression, PoissonRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 import statsmodels.api as sm
@@ -255,30 +255,7 @@ print("\n--- Model Comparison Benchmark ---")
 print(results.round(3).to_string(index=False))
 
 # -------------------------------------------------------------
-# 9. HYPERPARAMETER TUNING & REGULARIZATION
-# -------------------------------------------------------------
-print("\n" + "="*70)
-print("STEP 8: HYPERPARAMETER TUNING VIA GRIDSEARCHCV")
-print("="*70)
-
-param_grid = {'alpha': [0.001, 0.01, 0.1, 1.0, 5.0]}
-grid_search = GridSearchCV(
-    PoissonRegressor(max_iter=500),
-    param_grid,
-    cv=5,
-    scoring='neg_mean_squared_error',
-    n_jobs=1
-)
-grid_search.fit(X_train_scaled, y_train)
-best_poisson = grid_search.best_estimator_
-print(f"Optimal Alpha via 5-Fold Grid Search: {grid_search.best_params_['alpha']}")
-
-y_pred_tuned = best_poisson.predict(X_test_scaled)
-tuned_rmse = np.sqrt(mean_squared_error(y_test, y_pred_tuned))
-print(f"Tuned Poisson Test RMSE: {tuned_rmse:.3f}")
-
-# -------------------------------------------------------------
-# 10. PREDICTION VISUALIZATION: ACTUAL VS PREDICTED
+# 9. PREDICTION VISUALIZATION: ACTUAL VS PREDICTED
 # -------------------------------------------------------------
 plt.figure(figsize=(12, 5))
 
@@ -286,7 +263,7 @@ plt.subplot(1, 2, 1)
 test_sample = 120
 plt.plot(np.arange(test_sample), y_test.iloc[:test_sample].values, label='Actual Demand', color='black', lw=2)
 plt.plot(np.arange(test_sample), y_pred_ols[:test_sample], label='OLS Linear (Predicts < 0)', linestyle='--', color='red', alpha=0.7)
-plt.plot(np.arange(test_sample), y_pred_nb.iloc[:test_sample].values, label='Negative Binomial (Non-negative)', color='green', lw=1.8)
+plt.plot(np.arange(test_sample), y_pred_poisson[:test_sample], label='Poisson Regression (Non-negative)', color='green', lw=2)
 plt.title(f"Actual vs Predicted Demand (First {test_sample} Test Hours)")
 plt.xlabel("Time Index (Hours)")
 plt.ylabel("Hourly Bike Rentals")
@@ -294,9 +271,9 @@ plt.legend()
 plt.grid(True, alpha=0.3)
 
 plt.subplot(1, 2, 2)
-sns.scatterplot(x=y_test, y=y_pred_nb, alpha=0.3, color='teal')
+sns.scatterplot(x=y_test, y=y_pred_poisson, alpha=0.3, color='teal')
 plt.plot([0, y_test.max()], [0, y_test.max()], 'r--', lw=2, label='Perfect Fit')
-plt.title("Negative Binomial: Predicted vs Actual Scatter")
+plt.title("Poisson Regression: Predicted vs Actual Scatter")
 plt.xlabel("Actual Count")
 plt.ylabel("Predicted Count")
 plt.legend()

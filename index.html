@@ -71,9 +71,9 @@
           <div class="text-[11px] text-slate-500 mt-0.5">Linear Regression Flaw</div>
         </div>
         <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm text-left">
-          <div class="text-slate-400 text-xs font-medium">Tuned Poisson RMSE</div>
-          <div class="text-2xl font-bold text-emerald-400 mt-1 mono">87.84</div>
-          <div class="text-[11px] text-slate-500 mt-0.5">GridSearchCV Optimized</div>
+          <div class="text-slate-400 text-xs font-medium">Poisson RMSE</div>
+          <div class="text-2xl font-bold text-emerald-400 mt-1 mono">88.70</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Log-Link Enforced</div>
         </div>
       </div>
     </div>
@@ -223,13 +223,16 @@
               <td class="py-3.5 px-4 mono text-rose-400 font-bold">324 Invalid</td>
               <td class="py-3.5 px-4"><span class="px-2 py-0.5 text-[10px] rounded-full bg-rose-950 text-rose-300 border border-rose-800">Violates Non-negativity</span></td>
             </tr>
-            <tr class="hover:bg-slate-800/20 transition">
-              <td class="py-3.5 px-4 font-semibold text-white">2. Poisson Regression</td>
-              <td class="py-3.5 px-4 mono text-slate-200">88.698</td>
-              <td class="py-3.5 px-4 mono text-slate-200">63.065</td>
-              <td class="py-3.5 px-4 mono text-slate-200">0.752</td>
+            <tr class="bg-indigo-950/20 hover:bg-indigo-950/30 transition">
+              <td class="py-3.5 px-4 font-bold text-indigo-300 flex items-center space-x-1.5">
+                <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                <span>2. Poisson Regression</span>
+              </td>
+              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">88.698</td>
+              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">63.065</td>
+              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">0.752</td>
               <td class="py-3.5 px-4 mono text-emerald-400 font-bold">0 (Valid)</td>
-              <td class="py-3.5 px-4"><span class="px-2 py-0.5 text-[10px] rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">Log-Link Enforced</span></td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 text-[10px] rounded-full bg-indigo-900 text-indigo-200 border border-indigo-700 font-semibold">Best Model</span></td>
             </tr>
             <tr class="hover:bg-slate-800/20 transition">
               <td class="py-3.5 px-4 font-semibold text-white">3. Negative Binomial Regression</td>
@@ -238,17 +241,6 @@
               <td class="py-3.5 px-4 mono text-slate-200">0.270</td>
               <td class="py-3.5 px-4 mono text-emerald-400 font-bold">0 (Valid)</td>
               <td class="py-3.5 px-4"><span class="px-2 py-0.5 text-[10px] rounded-full bg-amber-950 text-amber-300 border border-amber-800">Overdispersion ($\alpha=0.5$)</span></td>
-            </tr>
-            <tr class="bg-indigo-950/20 hover:bg-indigo-950/30 transition">
-              <td class="py-3.5 px-4 font-bold text-indigo-300 flex items-center space-x-1.5">
-                <i class="fa-solid fa-star text-amber-400 text-xs"></i>
-                <span>4. Tuned Poisson (GridSearchCV α=5.0)</span>
-              </td>
-              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">87.836</td>
-              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">62.302</td>
-              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">0.758</td>
-              <td class="py-3.5 px-4 mono text-emerald-400 font-bold">0 (Valid)</td>
-              <td class="py-3.5 px-4"><span class="px-2 py-0.5 text-[10px] rounded-full bg-indigo-900 text-indigo-200 border border-indigo-700 font-semibold">Best Model</span></td>
             </tr>
           </tbody>
         </table>
@@ -329,7 +321,7 @@
       <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 space-y-3">
         <div class="flex justify-between items-center text-xs">
           <span class="font-bold text-slate-200">Actual vs. Predicted Over Time (Model Performance)</span>
-          <span class="text-emerald-400 font-semibold">Tuned Poisson vs OLS Flaw</span>
+          <span class="text-emerald-400 font-semibold">Poisson vs OLS Flaw</span>
         </div>
         <img src="figures/07_actual_vs_predicted.png" alt="Actual vs Predicted" class="rounded-xl border border-slate-800 w-full object-cover max-h-96">
         <p class="text-[11px] text-slate-400">Time-series overlay displaying the 120-hour test window. OLS drops below 0 during late night hours, whereas Poisson smoothly hugs zero without negative values.</p>
@@ -347,23 +339,23 @@
   <!-- REAL-TIME PREDICTOR SCRIPT -->
   <script>
     // Trained Poisson Model Weights & Scaler Parameters
-    const intercept = 4.9077;
+    const intercept = 4.8853;
     const weights = {
-      yr: { coef: 0.2288, mean: 0.5026, scale: 0.5000 },
-      holiday: { coef: -0.0258, mean: 0.0288, scale: 0.1672 },
-      workingday: { coef: -0.1654, mean: 0.6827, scale: 0.4654 },
-      rush_hour: { coef: 0.3868, mean: 0.1716, scale: 0.3771 },
-      temp: { coef: 0.2129, mean: 0.4970, scale: 0.1926 },
-      hum: { coef: -0.0178, mean: 0.6272, scale: 0.1929 },
-      windspeed: { coef: -0.0196, mean: 0.1901, scale: 0.1223 },
-      sin_hr: { coef: -0.3312, mean: -0.0045, scale: 0.7068 },
-      cos_hr: { coef: -0.4127, mean: -0.0033, scale: 0.7074 },
-      season_2: { coef: 0.1375, mean: 0.2537, scale: 0.4351 },
-      season_3: { coef: 0.1107, mean: 0.2587, scale: 0.4379 },
-      season_4: { coef: 0.1818, mean: 0.2435, scale: 0.4292 },
-      weathersit_2: { coef: -0.0288, mean: 0.2615, scale: 0.4394 },
-      weathersit_3: { coef: -0.1328, mean: 0.0817, scale: 0.2738 },
-      weathersit_4: { coef: -0.0094, mean: 0.0002, scale: 0.0131 }
+      yr: { coef: 0.2368, mean: 0.5026, scale: 0.5000 },
+      holiday: { coef: -0.0277, mean: 0.0288, scale: 0.1672 },
+      workingday: { coef: -0.1766, mean: 0.6827, scale: 0.4654 },
+      rush_hour: { coef: 0.3973, mean: 0.1716, scale: 0.3771 },
+      temp: { coef: 0.2001, mean: 0.4970, scale: 0.1926 },
+      hum: { coef: -0.0051, mean: 0.6272, scale: 0.1929 },
+      windspeed: { coef: -0.0210, mean: 0.1901, scale: 0.1223 },
+      sin_hr: { coef: -0.3497, mean: -0.0045, scale: 0.7068 },
+      cos_hr: { coef: -0.4388, mean: -0.0033, scale: 0.7074 },
+      season_2: { coef: 0.1613, mean: 0.2537, scale: 0.4351 },
+      season_3: { coef: 0.1377, mean: 0.2587, scale: 0.4379 },
+      season_4: { coef: 0.2013, mean: 0.2435, scale: 0.4292 },
+      weathersit_2: { coef: -0.0339, mean: 0.2615, scale: 0.4394 },
+      weathersit_3: { coef: -0.1443, mean: 0.0817, scale: 0.2738 },
+      weathersit_4: { coef: -0.0103, mean: 0.0002, scale: 0.0131 }
     };
 
     function updatePrediction() {
