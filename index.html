@@ -336,44 +336,6 @@
       </div>
     </section>
 
-    <!-- VIVA DEFENSE GUIDE -->
-    <section class="rounded-3xl border border-slate-800 bg-slate-900/30 p-6 sm:p-10 space-y-6">
-      <div>
-        <span class="text-xs uppercase tracking-wider font-semibold text-indigo-400">Viva Preparation</span>
-        <h3 class="text-xl font-bold text-white">Course Viva Voce Q&A Cheat Sheet</h3>
-        <p class="text-xs text-slate-400 mt-1">High-probability questions expected during project viva.</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-300">
-        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
-          <h4 class="font-bold text-white">Q1: Why not standard Linear Regression?</h4>
-          <p class="text-slate-400 leading-relaxed">
-            Linear Regression assumes homoscedastic Gaussian errors and unconstrained values $(-\infty, +\infty)$. For count data, rentals cannot be negative. In our holdout set, OLS predicted negative counts 324 times. Poisson's log link $\exp(X\beta)$ naturally bounds predictions to $[0, +\infty)$.
-          </p>
-        </div>
-
-        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
-          <h4 class="font-bold text-white">Q2: How did you prove Overdispersion?</h4>
-          <p class="text-slate-400 leading-relaxed">
-            In standard Poisson, $\mathbb{E}[Y] = \text{Var}(Y) = \mu$. In our target data, $\text{Mean} = 189.46$ while $\text{Variance} = 32,901.46$. The dispersion ratio $\text{Var}/\text{Mean} = 173.66 \gg 1$, mathematically proving overdispersion and motivating Negative Binomial Regression (Lec 21).
-          </p>
-        </div>
-
-        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
-          <h4 class="font-bold text-white">Q3: How was Outlier Detection done (Lec 6)?</h4>
-          <p class="text-slate-400 leading-relaxed">
-            Using the $1.5 \times \text{IQR}$ rule: $Q_1 = 40$, $Q_3 = 281$, $\text{IQR} = 241$. Threshold was $642.5$. We identified 505 counts above this threshold (2.91%), which correspond to extreme commuter rushes rather than corrupted sensor inputs.
-          </p>
-        </div>
-
-        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
-          <h4 class="font-bold text-white">Q4: What feature transformations were applied?</h4>
-          <p class="text-slate-400 leading-relaxed">
-            1) Engineered a binary `rush_hour` indicator for 7–9 AM and 5–7 PM on working days. 2) Encoded 24 hours into cyclical continuous signals using $\sin(2\pi \cdot \text{hr}/24)$ and $\cos(2\pi \cdot \text{hr}/24)$. 3) One-hot dummy encoding for weather and seasons.
-          </p>
-        </div>
-      </div>
-    </section>
 
   </main>
 
