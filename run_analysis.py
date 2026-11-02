@@ -1,8 +1,6 @@
 """
-CSE3141: Predictive Analytics - Course Project
-Title: Predictive Demand Modeling for Urban Bike Sharing using Generalized Linear Models (Poisson & Negative Binomial Regression)
-Course Coordinator / Handout: Manipal University Jaipur, CSE3141
-Lectures Covered: Lec 5 - Lec 9 (Data Prep & EDA) -> Lec 10-11 (Feature Eng) -> Lec 19-21 (GLM/Poisson/NegBinomial) -> Lec 30-36 (Validation/Metrics)
+Predictive Demand Modeling for Urban Bike Sharing using Generalized Linear Models (Poisson & Negative Binomial Regression)
+Department of Computer Science and Engineering, Manipal University Jaipur
 """
 
 import os
@@ -23,20 +21,20 @@ import statsmodels.formula.api as smf
 os.makedirs('figures', exist_ok=True)
 
 # -------------------------------------------------------------
-# 1. DATA INGESTION & OVERVIEW (Lec 5)
+# 1. DATA INGESTION & OVERVIEW
 # -------------------------------------------------------------
 print("="*70)
-print("STEP 1: DATA INGESTION (Lecture 5)")
+print("STEP 1: DATA INGESTION & OVERVIEW")
 print("="*70)
 df = pd.read_csv('data/hour.csv')
 print(f"Dataset shape: {df.shape[0]} rows, {df.shape[1]} columns")
 print("First 3 rows:\n", df.head(3))
 
 # -------------------------------------------------------------
-# 2. DATA PREPROCESSING: CLEANING & OUTLIERS (Lec 6)
+# 2. DATA PREPROCESSING: MISSING VALUES & OUTLIERS
 # -------------------------------------------------------------
 print("\n" + "="*70)
-print("STEP 2: PREPROCESSING - MISSING VALUES & OUTLIERS (Lecture 6)")
+print("STEP 2: PREPROCESSING - MISSING VALUES & OUTLIERS")
 print("="*70)
 missing_counts = df.isnull().sum()
 print("Missing values per column:\n", missing_counts[missing_counts > 0] if missing_counts.sum() > 0 else "Zero missing values detected!")
@@ -53,15 +51,15 @@ print(f"Q1 (25%): {Q1:.2f}, Q3 (75%): {Q3:.2f}, IQR: {IQR:.2f}")
 print(f"Lower Bound: {lower_bound:.2f}, Upper Bound: {upper_bound:.2f}")
 print(f"Total Outliers identified via IQR: {len(outliers_iqr)} ({len(outliers_iqr)/len(df)*100:.2f}%)")
 
-# Box Plot for Lecture 6
+# Box Plot
 plt.figure(figsize=(10, 5))
 plt.subplot(1, 2, 1)
 sns.boxplot(y=df['cnt'], color='skyblue')
-plt.title("Box Plot of Rental Count (cnt)\n[Outlier Inspection - Lec 6]")
+plt.title("Box Plot of Rental Count (cnt)\n[Outlier Inspection via IQR]")
 plt.ylabel("Hourly Count")
 
 plt.subplot(1, 2, 2)
-sns.boxplot(x='season', y='cnt', data=df, palette='Set2')
+sns.boxplot(x='season', y='cnt', data=df, hue='season', palette='Set2', legend=False)
 plt.title("Box Plot of cnt by Season (1:Spring, 2:Summer, 3:Fall, 4:Winter)")
 plt.xlabel("Season")
 plt.ylabel("Hourly Count")
@@ -71,10 +69,10 @@ plt.close()
 print("Saved: figures/01_boxplot_outliers_lec6.png")
 
 # -------------------------------------------------------------
-# 3. EXPLORATORY DATA ANALYSIS (EDA): STATISTICAL METRICS (Lec 7-8)
+# 3. EXPLORATORY DATA ANALYSIS (EDA): STATISTICAL METRICS
 # -------------------------------------------------------------
 print("\n" + "="*70)
-print("STEP 3: EDA - DESCRIPTIVE STATS & Z-SCORE (Lectures 7 & 8)")
+print("STEP 3: EDA - DESCRIPTIVE STATS & Z-SCORE ANALYSIS")
 print("="*70)
 
 num_cols = ['temp', 'atemp', 'hum', 'windspeed', 'casual', 'registered', 'cnt']
@@ -85,86 +83,86 @@ stats_summary['Mode'] = df[num_cols].mode().iloc[0]
 stats_summary['Variance'] = df[num_cols].var()
 stats_summary['Std_Dev'] = df[num_cols].std()
 
-print("Summary of Statistical Measures (Lec 7 & 8):")
+print("Summary of Statistical Measures:")
 print(stats_summary.round(3))
 
 # Overdispersion diagnostic: Mean vs Variance
 mean_cnt = df['cnt'].mean()
 var_cnt = df['cnt'].var()
 dispersion_ratio = var_cnt / mean_cnt
-print(f"\n--- OVERDISPERSION TEST (Key for Lecture 20 & 21) ---")
+print(f"\n--- OVERDISPERSION TEST ---")
 print(f"Target 'cnt': Mean = {mean_cnt:.2f}, Variance = {var_cnt:.2f}")
 print(f"Dispersion Ratio (Var / Mean) = {dispersion_ratio:.2f}")
 print("-> Since Dispersion Ratio >> 1, the data exhibits SEVERE OVERDISPERSION.")
 print("-> Theoretical Implication: Standard Poisson assumes Var = Mean.")
-print("   Negative Binomial Regression is theoretically REQUIRED to account for overdispersion!")
+print("   Negative Binomial Regression accounts for this overdispersion.")
 
-# Z-score computation (Lec 8)
+# Z-score computation
 df['cnt_zscore'] = stats.zscore(df['cnt'])
 z_outliers = df[df['cnt_zscore'].abs() > 3]
-print(f"\nZ-Score Analysis (Lec 8): Found {len(z_outliers)} records with |Z| > 3 standard deviations from mean.")
+print(f"\nZ-Score Analysis: Found {len(z_outliers)} records with |Z| > 3 standard deviations from mean.")
 
 # -------------------------------------------------------------
-# 4. DATA VISUALIZATION (Lecture 9: 5 Core Plots)
+# 4. DATA VISUALIZATION (5 Core Plots)
 # -------------------------------------------------------------
 print("\n" + "="*70)
-print("STEP 4: DATA VISUALIZATION - 5 CORE PLOTS (Lecture 9)")
+print("STEP 4: DATA VISUALIZATION - 5 CORE PLOTS")
 print("="*70)
 
-# 1. Histogram (Lec 9)
+# 1. Histogram
 plt.figure(figsize=(8, 5))
 sns.histplot(df['cnt'], kde=True, bins=40, color='darkblue')
-plt.title("1. Histogram of Hourly Bike Rentals (cnt)\n[Positively Skewed Distribution - Lec 9]")
+plt.title("1. Histogram of Hourly Bike Rentals (cnt)\n[Positively Skewed Distribution]")
 plt.xlabel("Rental Count per Hour")
 plt.ylabel("Frequency")
 plt.savefig('figures/02_histogram_lec9.png', dpi=300)
 plt.close()
 
-# 2. Scatter Plot (Lec 9)
+# 2. Scatter Plot
 plt.figure(figsize=(8, 5))
 sns.scatterplot(x='temp', y='cnt', data=df.sample(2000, random_state=42), alpha=0.4, color='crimson')
-plt.title("2. Scatter Plot: Normalized Temperature vs Rental Count\n[Trend Identification - Lec 9]")
+plt.title("2. Scatter Plot: Normalized Temperature vs Rental Count\n[Trend Identification]")
 plt.xlabel("Normalized Temperature")
 plt.ylabel("Rental Count (cnt)")
 plt.savefig('figures/03_scatter_plot_lec9.png', dpi=300)
 plt.close()
 
-# 3. Bar Chart (Lec 9)
+# 3. Bar Chart
 plt.figure(figsize=(8, 5))
 season_names = {1: 'Spring', 2: 'Summer', 3: 'Fall', 4: 'Winter'}
 df['season_label'] = df['season'].map(season_names)
 season_avg = df.groupby('season_label')['cnt'].mean().reindex(['Spring', 'Summer', 'Fall', 'Winter'])
-sns.barplot(x=season_avg.index, y=season_avg.values, palette='Blues_d')
-plt.title("3. Bar Chart: Average Hourly Rentals across Seasons\n[Categorical Comparison - Lec 9]")
+sns.barplot(x=season_avg.index, y=season_avg.values, hue=season_avg.index, palette='Blues_d', legend=False)
+plt.title("3. Bar Chart: Average Hourly Rentals across Seasons\n[Categorical Comparison]")
 plt.xlabel("Season")
 plt.ylabel("Mean Hourly Rentals")
 plt.savefig('figures/04_bar_chart_lec9.png', dpi=300)
 plt.close()
 
-# 4. Pie Chart (Lec 9)
+# 4. Pie Chart
 plt.figure(figsize=(7, 7))
 weather_labels = {1: 'Clear / Few Clouds', 2: 'Mist / Cloudy', 3: 'Light Snow / Rain', 4: 'Heavy Rain / Ice'}
 weather_counts = df['weathersit'].map(weather_labels).value_counts()
 plt.pie(weather_counts, labels=weather_counts.index, autopct='%1.1f%%', colors=sns.color_palette('pastel'), startangle=140)
-plt.title("4. Pie Chart: Distribution of Weather Situations\n[Proportions - Lec 9]")
+plt.title("4. Pie Chart: Distribution of Weather Situations\n[Proportions]")
 plt.savefig('figures/05_pie_chart_lec9.png', dpi=300)
 plt.close()
 
-# 5. Heatmap (Lec 9)
+# 5. Heatmap
 plt.figure(figsize=(9, 7))
 corr_matrix = df[['temp', 'atemp', 'hum', 'windspeed', 'hr', 'cnt']].corr()
 sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5)
-plt.title("5. Heatmap: Correlation Matrix of Key Numeric Features\n[Collinearity Inspection - Lec 9]")
+plt.title("5. Heatmap: Correlation Matrix of Key Numeric Features\n[Collinearity Inspection]")
 plt.savefig('figures/06_heatmap_lec9.png', dpi=300)
 plt.close()
 
-print("All 5 Lecture 9 visualization figures generated in ./figures/")
+print("All 5 core visualization figures regenerated in ./figures/")
 
 # -------------------------------------------------------------
-# 5. FEATURE ENGINEERING & SELECTION (Lectures 10 & 11)
+# 5. FEATURE ENGINEERING & SELECTION
 # -------------------------------------------------------------
 print("\n" + "="*70)
-print("STEP 5: FEATURE ENGINEERING & SELECTION (Lectures 10 & 11)")
+print("STEP 5: FEATURE ENGINEERING & SELECTION")
 print("="*70)
 
 # Rush hour flag: Peak commuter hours 7-9 AM and 17-19 PM on working days
@@ -191,7 +189,7 @@ print(f"Selected {len(feature_cols)} features after engineering:")
 print(feature_cols)
 
 # -------------------------------------------------------------
-# 6. MODEL VALIDATION SPLIT (Lecture 30)
+# 6. MODEL VALIDATION SPLIT
 # -------------------------------------------------------------
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
 print(f"Train set: {X_train.shape[0]} rows | Test set: {X_test.shape[0]} rows (80/20 split)")
@@ -201,10 +199,10 @@ X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
 # -------------------------------------------------------------
-# 7. MODELING: OLS, POISSON, & NEGATIVE BINOMIAL (Lec 19, 20, 21)
+# 7. MODELING: OLS, POISSON, & NEGATIVE BINOMIAL
 # -------------------------------------------------------------
 print("\n" + "="*70)
-print("STEP 6: GENERALIZED LINEAR MODELS (Lectures 19, 20, 21)")
+print("STEP 6: GENERALIZED LINEAR MODELS (GLM)")
 print("="*70)
 
 # Model 1: Ordinary Least Squares (OLS) Linear Regression (Baseline)
@@ -212,12 +210,12 @@ ols_model = LinearRegression()
 ols_model.fit(X_train_scaled, y_train)
 y_pred_ols = ols_model.predict(X_test_scaled)
 
-# Model 2: Poisson Regression (Lec 20) via Scikit-Learn
+# Model 2: Poisson Regression via Scikit-Learn
 poisson_model = PoissonRegressor(alpha=1e-3, max_iter=500)
 poisson_model.fit(X_train_scaled, y_train)
 y_pred_poisson = poisson_model.predict(X_test_scaled)
 
-# Model 3: Negative Binomial Regression (Lec 21) via Statsmodels
+# Model 3: Negative Binomial Regression via Statsmodels
 train_data_sm = pd.concat([X_train, y_train], axis=1)
 test_data_sm = pd.concat([X_test, y_test], axis=1)
 
@@ -230,14 +228,14 @@ nb_model = smf.glm(
 
 y_pred_nb = nb_model.predict(test_data_sm)
 
-print("\n--- STATSMODELS NEGATIVE BINOMIAL ESTIMATION SUMMARY (Lec 21) ---")
+print("\n--- STATSMODELS NEGATIVE BINOMIAL ESTIMATION SUMMARY ---")
 print(nb_model.summary().tables[1])
 
 # -------------------------------------------------------------
-# 8. PERFORMANCE METRICS & EVALUATION (Lectures 30-36)
+# 8. PERFORMANCE METRICS & EVALUATION
 # -------------------------------------------------------------
 print("\n" + "="*70)
-print("STEP 7: PERFORMANCE METRICS & VALIDATION (Lectures 31, 32)")
+print("STEP 7: PERFORMANCE METRICS & VALIDATION")
 print("="*70)
 
 def evaluate_predictions(y_true, y_pred, name):
@@ -245,22 +243,22 @@ def evaluate_predictions(y_true, y_pred, name):
     mae = mean_absolute_error(y_true, y_pred)
     r2 = r2_score(y_true, y_pred)
     neg_preds = (y_pred < 0).sum()
-    return {'Model': name, 'RMSE (Lec 31)': rmse, 'MAE (Lec 32)': mae, 'R2': r2, 'Negative Predictions': neg_preds}
+    return {'Model': name, 'RMSE': rmse, 'MAE': mae, 'R2': r2, 'Negative Predictions': neg_preds}
 
 results = pd.DataFrame([
     evaluate_predictions(y_test, y_pred_ols, "1. Linear Regression (OLS)"),
-    evaluate_predictions(y_test, y_pred_poisson, "2. Poisson Regression (Lec 20)"),
-    evaluate_predictions(y_test, y_pred_nb, "3. Negative Binomial (Lec 21)")
+    evaluate_predictions(y_test, y_pred_poisson, "2. Poisson Regression"),
+    evaluate_predictions(y_test, y_pred_nb, "3. Negative Binomial")
 ])
 
 print("\n--- Model Comparison Benchmark ---")
 print(results.round(3).to_string(index=False))
 
 # -------------------------------------------------------------
-# 9. HYPERPARAMETER TUNING & REGULARIZATION (Lectures 35 & 36)
+# 9. HYPERPARAMETER TUNING & REGULARIZATION
 # -------------------------------------------------------------
 print("\n" + "="*70)
-print("STEP 8: HYPERPARAMETER TUNING VIA GRIDSEARCHCV (Lecture 35)")
+print("STEP 8: HYPERPARAMETER TUNING VIA GRIDSEARCHCV")
 print("="*70)
 
 param_grid = {'alpha': [0.001, 0.01, 0.1, 1.0, 5.0]}
@@ -284,7 +282,6 @@ print(f"Tuned Poisson Test RMSE: {tuned_rmse:.3f}")
 # -------------------------------------------------------------
 plt.figure(figsize=(12, 5))
 
-# Slice of 100 test hours for visual comparison
 plt.subplot(1, 2, 1)
 test_sample = 120
 plt.plot(np.arange(test_sample), y_test.iloc[:test_sample].values, label='Actual Demand', color='black', lw=2)
